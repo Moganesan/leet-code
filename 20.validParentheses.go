@@ -1,18 +1,54 @@
 package main
 
+import "fmt"
+
 func isValid(s string) bool {
-	parentheses := []string{"()", "[]", "{}"}
+	st := stack{
+		store: []rune{},
+	}
 
-	for i := 0; i < len(s); i++ {
-		if i+1 < len(s) {
-			pair := string(s[i]) + string(s[i+1])
-
-			for j := 0; j < len(parentheses); j++ {
-				if parentheses[j] == pair {
-					return true
-				}
+	for _, ch := range s {
+		switch ch {
+		case '(', '{', '[':
+			st.store = append(st.store, ch)
+		default:
+			if ok := st.remove(ch); !ok {
+				return false
 			}
 		}
 	}
-	return false
+
+	return len(st.store) == 0
+}
+
+type stack struct {
+	store []rune
+}
+
+func (s *stack) remove(ch rune) bool {
+	if len(s.store) == 0 {
+		return false
+	}
+
+	switch ch {
+	case ')':
+		if s.store[len(s.store)-1] != '(' {
+			return false
+		}
+	case '}':
+		if s.store[len(s.store)-1] != '{' {
+			return false
+		}
+	case ']':
+		if s.store[len(s.store)-1] != '[' {
+			return false
+		}
+	}
+	s.store = s.store[:len(s.store)-1]
+
+	return true
+}
+
+func main() {
+	fmt.Println(isValid("{}[]"))
 }
